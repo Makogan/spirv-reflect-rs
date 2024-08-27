@@ -45,11 +45,12 @@ pub(crate) fn ffi_to_entry_point(ffi_type: &ffi::SpvReflectEntryPoint) -> Reflec
         }
         .to_vec(),
         used_push_constants: unsafe {
-            std::slice::from_raw_parts(
-                ffi_type.used_push_constants,
-                ffi_type.used_push_constant_count as usize,
-            )
-        }
+            if ffi_type.used_push_constant_count > 0 {
+            std::slice::from_raw_parts(ffi_type.used_push_constants, ffi_type.used_push_constant_count as usize )
+            } else {
+                &[]
+            }
+         }
         .to_vec(),
         local_size: ReflectEntryPointLocalSize {
             x: ffi_type.local_size.x,
@@ -66,7 +67,7 @@ pub(crate) fn ffi_to_interface_variable(
     let ffi_members = if ffi_type.member_count as usize > 0 {
         unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
     } else {
-        Vec::new()
+        &[]
     };
     let members: Vec<ReflectInterfaceVariable> = ffi_members
         .iter()
@@ -99,11 +100,10 @@ pub(crate) fn ffi_to_interface_variable(
 pub(crate) fn ffi_to_type_description(
     ffi_type: &ffi::SpvReflectTypeDescription,
 ) -> ReflectTypeDescription {
-    let empty = Vec::new();
     let ffi_members = if ffi_type.member_count as usize > 0 {
         unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
     } else {
-        &empty
+        &[]
     };
     let members: Vec<ReflectTypeDescription> = ffi_members
         .iter()
@@ -473,11 +473,10 @@ pub(crate) fn ffi_to_binding_array_traits(
 pub(crate) fn ffi_to_block_variable(
     ffi_type: &ffi::SpvReflectBlockVariable,
 ) -> ReflectBlockVariable {
-    let empty = Vec::new();
     let ffi_members = if ffi_type.member_count as usize > 0 {
         unsafe { std::slice::from_raw_parts(ffi_type.members, ffi_type.member_count as usize) }
     } else {
-        &empty
+        &[]
     };
     let members: Vec<ReflectBlockVariable> = ffi_members
         .iter()
